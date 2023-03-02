@@ -1,8 +1,4 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <random>
-
+#include<bits/stdc++.h>
 using namespace std;
 
 string encrypt(string plaintext, string key) {
@@ -29,9 +25,13 @@ int main() {
     getline(cin, plaintext);
     string key;
     /*
-    default_random_engine and uniform_int_distribution<int> are C++ standard library classes for generating pseudo-random numbers.
-    default_random_engine is a class that provides a source of randomness. When you create an instance of this class, you can use it to generate a sequence of pseudo-random numbers
-    uniform_int_distribution<int> is a class that takes a range and produces a distribution of numbers uniformly distributed across that range. In this case, the range is from 0 to 255.
+    default_random_engine and uniform_int_distribution<int> 
+    are C++ standard library classes for generating pseudo-random numbers.
+    default_random_engine is a class that provides a source of randomness. 
+    When you create an instance of this class, you can use it to generate 
+    a sequence of pseudo-random numbers uniform_int_distribution<int> 
+    is a class that takes a range and produces a distribution of numbers 
+    uniformly distributed across that range. In this case, the range is from 0 to 255.
 
     */
     default_random_engine generator;
