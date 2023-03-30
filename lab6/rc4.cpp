@@ -41,6 +41,7 @@ string rc4(string key, string data) {
 }
 
 int main() {
+    
     string key = "mysecretpassword";
     string data = "This is a secret message";
     string ciphertext = rc4(key, data);

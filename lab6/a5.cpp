@@ -1,78 +1,111 @@
 #include <bits/stdc++.h>
 using namespace std;
-
-class A51 {
-public:
-    A51(string key, string frame) {
-        // convert key and frame strings to bitsets
-        bitset<64> keyBits(key);
-        bitset<22> frameBits(frame);
-
-        // initialize registers with key and frame values
-        for (int i = 0; i < 19; i++) {
-            r1[i] = keyBits[i+8];
-        }
-        for (int i = 0; i < 22; i++) {
-            r2[i] = keyBits[i+29];
-        }
-        for (int i = 0; i < 23; i++) {
-            r3[i] = keyBits[i+51];
-        }
-
-        // run clocking algorithm to set registers to frame value
-        for (int i = 0; i < 100; i++) {
-            clock();
-        }
-        r1 ^= frameBits.to_ulong();
-        r2 ^= frameBits.to_ulong();
-        r3 ^= frameBits.to_ulong();
+string decryption(string msg, int key[])
+{
+    vector<int> register_x(19, 0);
+    vector<int> register_y(22, 0);
+    vector<int> register_z(23, 0);
+    int index = 0;
+    for (int i = 0; i < 19; i++)
+    {
+        register_x[i] = key[index];
+        index++;
     }
-
-    string generateKeystream(int length) {
-        string keystream = "";
-        for (int i = 0; i < length; i++) {
-            clock();
-            int maj = (r1[8] & r2[10]) ^ (r1[8] & r3[10]) ^ (r2[10] & r3[10]);
-            int z = (r1[18] ^ r2[21] ^ r3[22]);
-            keystream += to_string(z);
-        }
-        return keystream;
+    for (int i = 0; i < 22; i++)
+    {
+        register_y[i] = key[index];
+        index++;
     }
-
-private:
-    bitset<19> r1;
-    bitset<22> r2;
-    bitset<23> r3;
-
-    void clock() {
-        int maj = (r1[8] & r2[10]) ^ (r1[8] & r3[10]) ^ (r2[10] & r3[10]);
-        if (r1[8] == maj) {
-            bitset<19> temp = r1;
-            r1 = temp >> 1;
-            r1[18] = temp[8] ^ temp[13] ^ temp[16] ^ temp[18];
-        }
-        if (r2[10] == maj) {
-            bitset<22> temp = r2;
-            r2 = temp >> 1;
-            r2[21] = temp[10] ^ temp[20] ^ temp[21];
-        }
-        if (r3[10] == maj) {
-            bitset<23> temp = r3;
-            r3 = temp >> 1;
-            r3[22] = temp[7] ^ temp[20] ^ temp[21] ^ temp[22];
-        }
+    for (int i = 0; i < 23; i++)
+    {
+        register_z[i] = key[index];
+        index++;
     }
-};
+    int x_select = register_x[8];
+    int y_select = register_y[10];
+    int z_select = register_z[10];
+    if (x_select == 0)
+    {
+        int xor_op = register_x[18] ^ register_x[17] ^ register_x[16] ^ register_x[13];
+        rotate(register_x.begin(), register_x.end(), register_x.end());
+        register_x[0] = xor_op;
+    }
+    if (y_select == 0)
+    {
+        int xor_op = register_y[20] ^ register_y[21];
+        rotate(register_y.begin(), register_y.end(), register_y.end());
+        register_y[0] = xor_op;
 
-int main() {
-    // initialize A5/1 with key and frame values
-    string key = "0100000101101100010010001000010100000001010010000111010101101001";
-    string frame = "0000000100000000000000";
-    A51 a51(key, frame);
-
-    // generate keystream and print it
-    string keystream = a51.generateKeystream(228);
-    cout << "Keystream: " << keystream << endl;
-
-    return 0;
+    }
+    if (z_select == 0)
+    {
+        int xor_op = register_z[20] ^ register_z[21] ^ register_z[22];
+        rotate(register_z.begin(), register_z.end(), register_z.end());
+        register_z[0] = xor_op;
+    }
+    for (int i = 0; i < msg.size(); i++)
+    {
+        msg[i] ^= (register_x[18] ^ register_y[21] ^ register_z[22]);
+    }
+    return msg;
+}
+string encryption(string msg, int key[])
+{
+    vector<int> register_x(19, 0);
+    vector<int> register_y(22, 0);
+    vector<int> register_z(23, 0);
+    int index = 0;
+    for (int i = 0; i < 19; i++)
+    {
+        register_x[i] = key[index];
+        index++;
+    }
+    for (int i = 0; i < 22; i++)
+    {
+        register_y[i] = key[index];
+        index++;
+    }
+    for (int i = 0; i < 23; i++)
+    {
+        register_z[i] = key[index];
+        index++;
+    }
+    int x_select = register_x[8];
+    int y_select = register_y[10];
+    int z_select = register_z[10];
+    if (x_select == 0)
+    {
+        int xor_op = register_x[18] ^ register_x[17] ^ register_x[16] ^ register_x[13];
+        rotate(register_x.begin(), register_x.end(), register_x.end());
+        register_x[0] = xor_op;
+    }
+    if (y_select == 0)
+    {
+        int xor_op = register_y[20] ^ register_y[21];
+        rotate(register_y.begin(), register_y.end(), register_y.end());
+        register_y[0] = xor_op;
+    }
+    if (z_select == 0)
+    {
+        int xor_op = register_z[20] ^ register_z[21] ^ register_z[22];
+        rotate(register_z.begin(), register_z.end(), register_z.end());
+        register_z[0] = xor_op;
+    }
+    for (int i = 0; i < msg.size(); i++)
+    {
+        msg[i] ^= (register_x[18] ^ register_y[21] ^ register_z[22]);
+    }
+    return msg;
+}
+int main()
+{
+string data = "This is a secret message";
+int key[] = {1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0};
+string encrypt = encryption(data, key);
+cout << "Encrypted message is: ";
+cout << encrypt << endl;
+string decrypt = decryption(encrypt, key);
+cout << "Decrypted message is: ";
+cout << decrypt << endl;
 }
